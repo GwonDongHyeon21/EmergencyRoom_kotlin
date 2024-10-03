@@ -118,7 +118,7 @@ fun EmergencyRoomOnMapLayout(navController: NavController) {
             }
 
             IconButton(
-                onClick = { requestLocationWithPermission() },
+                onClick = { RequestLocationWithPermission() },
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(top = 20.dp, bottom = 30.dp)
@@ -136,7 +136,7 @@ fun EmergencyRoomOnMapLayout(navController: NavController) {
 }
 
 @Composable
-fun requestLocationWithPermission() {
+fun RequestLocationWithPermission() {
     val context = LocalContext.current
     val hasLocationPermission by remember {
         mutableStateOf(
