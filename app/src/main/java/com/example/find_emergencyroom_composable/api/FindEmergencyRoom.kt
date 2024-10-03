@@ -18,31 +18,11 @@ fun emergencyRoomApi() {
     try {
         val urlBuilder =
             StringBuilder("https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire")
-        urlBuilder.append(
-            "?" + URLEncoder.encode(
-                "serviceKey", "UTF-8"
-            ) + "=***REMOVED***"
-        ) /*Service Key*/
-        urlBuilder.append(
-            "&" + URLEncoder.encode(
-                "STAGE1", "UTF-8"
-            ) + "=" + URLEncoder.encode("서울특별시", "UTF-8")
-        ) /*주소(시도)*/
-        urlBuilder.append(
-            "&" + URLEncoder.encode(
-                "STAGE2", "UTF-8"
-            ) + "=" + URLEncoder.encode("", "UTF-8")
-        ) /*주소(시군구)*/
-        urlBuilder.append(
-            "&" + URLEncoder.encode(
-                "pageNo", "UTF-8"
-            ) + "=" + URLEncoder.encode("1", "UTF-8")
-        ) /*페이지 번호*/
-        urlBuilder.append(
-            "&" + URLEncoder.encode(
-                "numOfRows", "UTF-8"
-            ) + "=" + URLEncoder.encode("10", "UTF-8")
-        ) /*목록 건수*/
+        urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + "=***REMOVED***") /*Service Key*/
+        urlBuilder.append("&" + URLEncoder.encode("STAGE1", "UTF-8") + "=" + URLEncoder.encode("서울특별시", "UTF-8")) /*주소(시도)*/
+        urlBuilder.append("&" + URLEncoder.encode("STAGE2", "UTF-8") + "=" + URLEncoder.encode("", "UTF-8")) /*주소(시군구)*/
+        urlBuilder.append("&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode("", "UTF-8")) /*페이지 번호*/
+        urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + URLEncoder.encode("411", "UTF-8")) /*목록 건수*/
 
         val url = URL(urlBuilder.toString())
         val conn = url.openConnection() as HttpURLConnection
@@ -98,9 +78,9 @@ private fun parseResponse(xml: String) {
                     if (tagName == "item") {
                         emergencyRoomList.add(
                             EmergencyRoom(
+                                phId.toString(),
                                 dutyName.toString(),
                                 dutyTel.toString(),
-                                phId.toString(),
                             )
                         )
                     }

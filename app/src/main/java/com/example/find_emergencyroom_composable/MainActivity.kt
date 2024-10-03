@@ -23,7 +23,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.find_emergencyroom_composable.model.EmergencyRoom
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,15 +40,8 @@ fun MainScreen() {
         composable("main") {
             MainLayout(navController)
         }
-        composable("emergencyRoomList") {
-            EmergencyRoomListLayout(navController)
-        }
-        composable("details/room") {
-            val room: EmergencyRoom? =
-                navController.previousBackStackEntry?.arguments?.getParcelable("room")
-            room?.let {
-                EmergencyRoomOnMap(it)
-            }
+        composable("roomOnMap") {
+            EmergencyRoomOnMapLayout(navController)
         }
     }
 }
@@ -80,7 +72,7 @@ fun MainLayout(navController: NavController) {
             modifier = Modifier
                 .padding(60.dp),
             onClick = {
-                navController.navigate("emergencyRoomList")
+                navController.navigate("roomOnMap")
             }) {
             Text("찾기")
         }
