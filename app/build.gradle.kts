@@ -77,7 +77,8 @@ android {
         debugImplementation(libs.androidx.ui.tooling)
         debugImplementation(libs.androidx.ui.test.manifest)
 
-        implementation(libs.play.services.maps.v1802)
-        implementation(libs.maps.compose)
+        implementation(libs.play.services.maps.v1810)
+        implementation(libs.play.services.location)
+        implementation(libs.maps.compose.v290)
     }
 }
