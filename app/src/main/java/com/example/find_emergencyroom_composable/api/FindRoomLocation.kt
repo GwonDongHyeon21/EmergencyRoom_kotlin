@@ -19,10 +19,30 @@ fun findLocation(phId: String, room: EmergencyRoom) {
     try {
         val urlBuilder =
             StringBuilder("https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEgytBassInfoInqire")
-        urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + "=***REMOVED***") /*Service Key*/
-        urlBuilder.append("&" + URLEncoder.encode("HPID", "UTF-8") + "=" + URLEncoder.encode(phId, "UTF-8")) /*기관 ID*/
-        urlBuilder.append("&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode("1", "UTF-8")) /*페이지 번호*/
-        urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + URLEncoder.encode("10", "UTF-8")) /*목록 건수*/
+        urlBuilder.append(
+            "?" + URLEncoder.encode(
+                "serviceKey",
+                "UTF-8"
+            ) + "=***REMOVED***"
+        ) /*Service Key*/
+        urlBuilder.append(
+            "&" + URLEncoder.encode("HPID", "UTF-8") + "=" + URLEncoder.encode(
+                phId,
+                "UTF-8"
+            )
+        ) /*기관 ID*/
+        urlBuilder.append(
+            "&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode(
+                "1",
+                "UTF-8"
+            )
+        ) /*페이지 번호*/
+        urlBuilder.append(
+            "&" + URLEncoder.encode(
+                "numOfRows",
+                "UTF-8"
+            ) + "=" + URLEncoder.encode("10", "UTF-8")
+        ) /*목록 건수*/
 
         val url = URL(urlBuilder.toString())
         val conn = url.openConnection() as HttpURLConnection
@@ -86,6 +106,7 @@ private fun parseResponse2(xml: String, room: EmergencyRoom) {
                                 room.phId,
                                 room.dutyName,
                                 room.dutyTel,
+                                room.roomCount,
                                 wgs84Lon.toString(),
                                 wgs84Lat.toString(),
                                 dutyAddress.toString(),

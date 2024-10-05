@@ -14,15 +14,40 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
 
-fun emergencyRoomApi() {
+fun emergencyRoomApi(query1: String, query2: String) {
     try {
         val urlBuilder =
             StringBuilder("https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire")
-        urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + "=***REMOVED***") /*Service Key*/
-        urlBuilder.append("&" + URLEncoder.encode("STAGE1", "UTF-8") + "=" + URLEncoder.encode("서울특별시", "UTF-8")) /*주소(시도)*/
-        urlBuilder.append("&" + URLEncoder.encode("STAGE2", "UTF-8") + "=" + URLEncoder.encode("", "UTF-8")) /*주소(시군구)*/
-        urlBuilder.append("&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode("", "UTF-8")) /*페이지 번호*/
-        urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + URLEncoder.encode("411", "UTF-8")) /*목록 건수*/
+        urlBuilder.append(
+            "?" + URLEncoder.encode(
+                "serviceKey",
+                "UTF-8"
+            ) + "=***REMOVED***"
+        ) /*Service Key*/
+        urlBuilder.append(
+            "&" + URLEncoder.encode("STAGE1", "UTF-8") + "=" + URLEncoder.encode(
+                query1,
+                "UTF-8"
+            )
+        ) /*주소(시도)*/
+        urlBuilder.append(
+            "&" + URLEncoder.encode("STAGE2", "UTF-8") + "=" + URLEncoder.encode(
+                query2,
+                "UTF-8"
+            )
+        ) /*주소(시군구)*/
+        urlBuilder.append(
+            "&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode(
+                "",
+                "UTF-8"
+            )
+        ) /*페이지 번호*/
+        urlBuilder.append(
+            "&" + URLEncoder.encode(
+                "numOfRows",
+                "UTF-8"
+            ) + "=" + URLEncoder.encode("411", "UTF-8")
+        ) /*목록 건수*/
 
         val url = URL(urlBuilder.toString())
         val conn = url.openConnection() as HttpURLConnection
@@ -55,6 +80,7 @@ private fun parseResponse(xml: String) {
         var dutyName: String? = null
         var dutyTel: String? = null
         var phId: String? = null
+        var roomCount: String? = null
 
         while (eventType != XmlPullParser.END_DOCUMENT) {
             val tagName = parser.name
@@ -71,18 +97,21 @@ private fun parseResponse(xml: String) {
                         "dutyName" -> dutyName = parser.nextText()
                         "dutyTel3" -> dutyTel = parser.nextText()
                         "hpid" -> phId = parser.nextText()
+                        "hvec" -> roomCount = parser.nextText()
                     }
                 }
 
                 XmlPullParser.END_TAG -> {
                     if (tagName == "item") {
-                        emergencyRoomList.add(
-                            EmergencyRoom(
-                                phId.toString(),
-                                dutyName.toString(),
-                                dutyTel.toString(),
+                        if ((roomCount?.toInt() ?: 0) > 0)
+                            emergencyRoomList.add(
+                                EmergencyRoom(
+                                    phId.toString(),
+                                    dutyName.toString(),
+                                    dutyTel.toString(),
+                                    roomCount.toString(),
+                                )
                             )
-                        )
                     }
                 }
             }
