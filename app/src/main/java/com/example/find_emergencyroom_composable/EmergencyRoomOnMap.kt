@@ -16,12 +16,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -83,8 +80,6 @@ fun EmergencyRoomOnMapLayout(navController: NavController) {
     var currentAddress by remember { mutableStateOf("") }
     var buttonEnabled by remember { mutableStateOf(false) }
 
-    RequestLocationPermission()
-
     LaunchedEffect(Unit) {
         emergencyRoomList.clear()
         emergencyRoomListAll.clear()
@@ -141,15 +136,18 @@ fun EmergencyRoomOnMapLayout(navController: NavController) {
 
             IconButton(
                 onClick = {
-                    coroutineScope.launch {
-                        val location = getCurrentLocation(context, fusedLocationClient)
-                        location?.let {
-                            val locationLatLng = LatLng(it.latitude, it.longitude)
-                            currentAddress =
-                                getAddressFromLatLng(context, locationLatLng).toString()
-                            cameraPositionState.position =
-                                CameraPosition.fromLatLngZoom(locationLatLng, 12f)
-                            buttonEnabled = true
+                    val activity = context as MainActivity
+                    if (activity.requestLocationPermission(context)) {
+                        coroutineScope.launch {
+                            val location = getCurrentLocation(context, fusedLocationClient)
+                            location?.let {
+                                val locationLatLng = LatLng(it.latitude, it.longitude)
+                                currentAddress =
+                                    getAddressFromLatLng(context, locationLatLng).toString()
+                                cameraPositionState.position =
+                                    CameraPosition.fromLatLngZoom(locationLatLng, 12f)
+                                buttonEnabled = true
+                            }
                         }
                     }
                 },
@@ -202,30 +200,6 @@ fun EmergencyRoomOnMapLayout(navController: NavController) {
             ) {
                 Text(text = "이 위치에서 다시 찾기")
             }
-        }
-    }
-}
-
-@Composable
-fun RequestLocationPermission() {
-    val context = LocalContext.current
-    var hasLocationPermission by remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(
-                context, Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        )
-    }
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        hasLocationPermission = isGranted
-    }
-
-    if (!hasLocationPermission) {
-        LaunchedEffect(Unit) {
-            launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
 }
