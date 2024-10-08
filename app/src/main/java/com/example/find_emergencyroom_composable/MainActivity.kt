@@ -1,8 +1,6 @@
 package com.example.find_emergencyroom_composable
 
 import android.Manifest
-import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -24,10 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -37,7 +33,8 @@ import androidx.navigation.compose.rememberNavController
 class MainActivity : ComponentActivity() {
 
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<Array<String>>
-    private var permissionCheck: Boolean = false
+    private var permissionCheck: Boolean = true
+    private var isRequestingPermission: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +42,7 @@ class MainActivity : ComponentActivity() {
         requestPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { permissions ->
+            isRequestingPermission = false
             permissionCheck = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true &&
                     permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
         }
@@ -65,13 +63,19 @@ class MainActivity : ComponentActivity() {
         return if (hasFineLocationPermission && hasCoarseLocationPermission) {
             true
         } else {
-            requestPermissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
+            if (!isRequestingPermission) {
+                isRequestingPermission = true
+                requestPermissionLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
                 )
-            )
-            return true
+                Log.d("testt", permissionCheck.toString())
+                return permissionCheck
+            } else {
+                return permissionCheck
+            }
         }
     }
 }
@@ -120,10 +124,4 @@ fun MainLayout(navController: NavController) {
             Text("찾기")
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun MainActivityPreview() {
-    MainLayout(rememberNavController())
 }
