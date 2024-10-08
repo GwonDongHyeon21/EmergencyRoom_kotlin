@@ -17,6 +17,7 @@ composeBom = "2024.04.01"
 mapsCompose = "2.11.0"
 mapsComposeVersion = "4.4.1"
 mapSdk = "3.16.0"
+mapSdkVersion = "3.14.0"
 navigationCompose = "2.4.0-alpha05"
 playServicesLocation = "21.0.1"
 playServicesMaps = "19.0.0"
@@ -46,6 +47,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutinesPlayServices" }
 map-sdk = { module = "com.naver.maps:map-sdk", version.ref = "mapSdk" }
+map-sdk-v3140 = { module = "com.naver.maps:map-sdk", version.ref = "mapSdkVersion" }
 maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
 maps-compose-v290 = { module = "com.google.maps.android:maps-compose", version.ref = "googleMapsCompose" }
 maps-compose-v441 = { module = "com.google.maps.android:maps-compose", version.ref = "mapsComposeVersion" }
