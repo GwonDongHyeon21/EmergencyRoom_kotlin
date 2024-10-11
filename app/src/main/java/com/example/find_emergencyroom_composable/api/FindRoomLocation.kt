@@ -2,6 +2,7 @@ package com.example.find_emergencyroom_composable.api
 
 import android.util.Log
 import android.util.Xml
+import com.example.find_emergencyroom_composable.BuildConfig
 import com.example.find_emergencyroom_composable.emergencyRoomListAll
 import com.example.find_emergencyroom_composable.model.EmergencyRoom
 import com.example.find_emergencyroom_composable.model.EmergencyRoomInformation
@@ -23,7 +24,7 @@ fun findLocation(phId: String, room: EmergencyRoom) {
             "?" + URLEncoder.encode(
                 "serviceKey",
                 "UTF-8"
-            ) + "=***REMOVED***"
+            ) + BuildConfig.EMERGENCY_ROOM_API
         ) /*Service Key*/
         urlBuilder.append(
             "&" + URLEncoder.encode("HPID", "UTF-8") + "=" + URLEncoder.encode(

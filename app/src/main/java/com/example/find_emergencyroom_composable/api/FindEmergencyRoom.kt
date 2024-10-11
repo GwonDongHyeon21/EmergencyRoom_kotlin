@@ -2,6 +2,7 @@ package com.example.find_emergencyroom_composable.api
 
 import android.util.Log
 import android.util.Xml
+import com.example.find_emergencyroom_composable.BuildConfig
 import com.example.find_emergencyroom_composable.emergencyRoomList
 import com.example.find_emergencyroom_composable.model.EmergencyRoom
 import org.xmlpull.v1.XmlPullParser
@@ -22,7 +23,7 @@ fun emergencyRoomApi(query1: String, query2: String) {
             "?" + URLEncoder.encode(
                 "serviceKey",
                 "UTF-8"
-            ) + "=***REMOVED***"
+            ) + BuildConfig.EMERGENCY_ROOM_API
         ) /*Service Key*/
         urlBuilder.append(
             "&" + URLEncoder.encode("STAGE1", "UTF-8") + "=" + URLEncoder.encode(

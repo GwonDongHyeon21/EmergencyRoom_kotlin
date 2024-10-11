@@ -11,6 +11,7 @@ val properties = Properties().apply {
     load(FileInputStream(rootProject.file("local.properties")))
 }
 val GOOGLE_MAP_API = (properties.getProperty("GOOGLE_MAP_API")).replace("\"", "")
+val EMERGENCY_ROOM_API = (properties.getProperty("EMERGENCY_ROOM_API"))
 
 android {
     namespace = "com.example.find_emergencyroom_composable"
@@ -29,6 +30,8 @@ android {
         }
 
         addManifestPlaceholders(mapOf("GOOGLE_MAP_API" to GOOGLE_MAP_API))
+
+        buildConfigField("String", "EMERGENCY_ROOM_API", EMERGENCY_ROOM_API)
     }
 
     buildTypes {
@@ -46,6 +49,7 @@ android {
             jvmTarget = "1.8"
         }
         buildFeatures {
+            buildConfig = true
             compose = true
         }
         composeOptions {
