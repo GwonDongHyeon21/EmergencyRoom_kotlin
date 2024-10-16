@@ -18,7 +18,7 @@
         android:theme="@style/Theme.Find_emergencyRoom_composable"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".EmergencyRoomMain"
             android:exported="true"
             android:theme="@style/Theme.Find_emergencyRoom_composable">
             <intent-filter>

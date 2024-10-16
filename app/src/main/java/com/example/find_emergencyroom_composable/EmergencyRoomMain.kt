@@ -4,17 +4,14 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,15 +19,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
 
-class MainActivity : ComponentActivity() {
+class EmergencyRoomMain : ComponentActivity() {
 
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<Array<String>>
     private var permissionCheck: Boolean = true
@@ -48,7 +47,7 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            MainScreen()
+            Layout()
         }
     }
 
@@ -71,7 +70,6 @@ class MainActivity : ComponentActivity() {
                         Manifest.permission.ACCESS_COARSE_LOCATION
                     )
                 )
-                Log.d("testt", permissionCheck.toString())
                 return permissionCheck
             } else {
                 return permissionCheck
@@ -81,24 +79,39 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen() {
+fun Layout() {
     val navController = rememberNavController()
     NavHost(navController, startDestination = "main") {
         composable("main") {
-            MainLayout(navController)
+            EmergencyRoomMainLayout(navController)
         }
         composable("roomOnMap") {
             EmergencyRoomOnMapLayout(navController)
+        }
+        composable(
+            route = "roomDetail/{dutyName}/{roomCount}/{dutyAddress}/{dutyTel}",
+            arguments = listOf(
+                navArgument("dutyName") { type = NavType.StringType },
+                navArgument("roomCount") { type = NavType.StringType },
+                navArgument("dutyAddress") { type = NavType.StringType },
+                navArgument("dutyTel") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val dutyName = backStackEntry.arguments?.getString("dutyName")
+            val roomCount = backStackEntry.arguments?.getString("roomCount")
+            val dutyAddress = backStackEntry.arguments?.getString("dutyAddress")
+            val dutyTel = backStackEntry.arguments?.getString("dutyTel")
+
+            EmergencyRoomDetailLayout(dutyName, roomCount, dutyAddress, dutyTel)
         }
     }
 }
 
 @Composable
-fun MainLayout(navController: NavController) {
+fun EmergencyRoomMainLayout(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize(),
-        verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(
@@ -108,7 +121,7 @@ fun MainLayout(navController: NavController) {
         Text(
             text = "응급실 찾기",
             modifier = Modifier
-                .fillMaxHeight(0.6f),
+                .fillMaxHeight(0.8f),
             style = TextStyle(
                 fontSize = 20.sp,
                 fontStyle = FontStyle.Normal
@@ -116,12 +129,16 @@ fun MainLayout(navController: NavController) {
         )
 
         Button(
-            modifier = Modifier
-                .padding(60.dp),
             onClick = {
                 navController.navigate("roomOnMap")
             }) {
             Text("찾기")
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewMainLayout() {
+    EmergencyRoomMainLayout(rememberNavController())
 }
