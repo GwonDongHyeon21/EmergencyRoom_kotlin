@@ -89,20 +89,24 @@ fun Layout() {
             EmergencyRoomOnMapLayout(navController)
         }
         composable(
-            route = "roomDetail/{dutyName}/{roomCount}/{dutyAddress}/{dutyTel}",
+            route = "roomDetail/{dutyName}/{roomCount}/{dutyAddress}/{lat}/{lon}/{dutyTel}",
             arguments = listOf(
                 navArgument("dutyName") { type = NavType.StringType },
                 navArgument("roomCount") { type = NavType.StringType },
                 navArgument("dutyAddress") { type = NavType.StringType },
-                navArgument("dutyTel") { type = NavType.StringType }
+                navArgument("dutyTel") { type = NavType.StringType },
+                navArgument("lat") { type = NavType.StringType },
+                navArgument("lon") { type = NavType.StringType },
             )
         ) { backStackEntry ->
             val dutyName = backStackEntry.arguments?.getString("dutyName")
             val roomCount = backStackEntry.arguments?.getString("roomCount")
             val dutyAddress = backStackEntry.arguments?.getString("dutyAddress")
             val dutyTel = backStackEntry.arguments?.getString("dutyTel")
+            val lat = backStackEntry.arguments?.getString("lat")
+            val lon = backStackEntry.arguments?.getString("lon")
 
-            EmergencyRoomDetailLayout(dutyName, roomCount, dutyAddress, dutyTel)
+            EmergencyRoomDetailLayout(dutyName, roomCount, dutyAddress, dutyTel, lat, lon)
         }
     }
 }

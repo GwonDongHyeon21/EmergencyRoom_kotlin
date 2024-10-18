@@ -42,10 +42,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.find_emergencyroom_composable.api.emergencyRoomApi
 import com.example.find_emergencyroom_composable.api.findLocation
 import com.example.find_emergencyroom_composable.model.EmergencyRoom
@@ -75,10 +77,10 @@ var emergencyRoomListAll = mutableListOf<EmergencyRoomInformation>()
 fun EmergencyRoomOnMapLayout(navController: NavController) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val startPosition = LatLng(37.5665, 126.9780)
     val fusedLocationClient = remember {
         LocationServices.getFusedLocationProviderClient(context)
     }
+    val startPosition = LatLng(37.5665, 126.9780)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(startPosition, 12f)
     }
@@ -152,6 +154,8 @@ fun EmergencyRoomOnMapLayout(navController: NavController) {
                                                 "${emergencyRoom.dutyName}/" +
                                                 "${emergencyRoom.roomCount}/" +
                                                 "${emergencyRoom.dutyAddress}/" +
+                                                "${emergencyRoom.wgs84Lat}/" +
+                                                "${emergencyRoom.wgs84Lon}/" +
                                                 emergencyRoom.dutyTel
                                     )
                                 }
@@ -317,4 +321,10 @@ suspend fun getAddressFromLatLng(context: Context, latLng: LatLng): String? {
             ""
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewOnMap(){
+    EmergencyRoomOnMapLayout(rememberNavController())
 }
