@@ -2,28 +2,41 @@ package com.example.find_emergencyroom_composable
 
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -59,27 +72,74 @@ fun EmergencyRoomDetailLayout(
 
         Column(
             modifier = Modifier
-                .fillMaxWidth(0.8f)
+                .fillMaxWidth()
                 .padding(20.dp),
             verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.End
+            horizontalAlignment = Alignment.Start
         ) {
             Text(
                 text = dutyName ?: "",
-                style = TextStyle(fontSize = 20.sp),
+                style = TextStyle(fontSize = 30.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            Text(
-                text = dutyAddress ?: "",
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                text = "병상 수: ${roomCount ?: ""}",
-                style = TextStyle(fontSize = 15.sp),
-            )
-            Text(text = "전화번호: ${dutyTel ?: ""}")
+            Spacer(modifier = Modifier.padding(5.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.LocationOn,
+                    contentDescription = "주소",
+                    modifier = Modifier.size(20.dp),
+                    tint = Color.Gray,
+                )
+                Spacer(modifier = Modifier.padding(1.dp))
+                Text(
+                    text = dutyAddress ?: "",
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Spacer(modifier = Modifier.padding(2.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Call,
+                    contentDescription = "주소",
+                    modifier = Modifier.size(20.dp),
+                    tint = Color.Gray,
+                )
+                Spacer(modifier = Modifier.padding(1.dp))
+                Text(
+                    text = dutyTel ?: "",
+                    style = TextStyle(
+                        textDecoration = TextDecoration.Underline
+                    ),
+                    modifier = Modifier.clickable {
+                        telDialog(context, dutyTel)
+                    },
+                )
+            }
+            Spacer(modifier = Modifier.padding(2.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Info,
+                    contentDescription = "주소",
+                    modifier = Modifier.size(20.dp),
+                    tint = Color.Gray,
+                )
+                Spacer(modifier = Modifier.padding(1.dp))
+                Text(
+                    text = "병상 수: ${roomCount ?: ""}",
+                    style = TextStyle(fontSize = 20.sp),
+                )
+            }
         }
 
         Column(
@@ -87,19 +147,6 @@ fun EmergencyRoomDetailLayout(
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(
-                onClick = {
-                    dutyTel?.let { tel ->
-                        val intent = Intent(Intent.ACTION_DIAL).apply {
-                            data = Uri.parse("tel:$tel")
-                        }
-                        context.startActivity(intent)
-                    }
-                },
-            ) {
-                Text(text = "전화 걸기")
-            }
-
             Button(
                 onClick = {
                     navigator(
@@ -114,6 +161,35 @@ fun EmergencyRoomDetailLayout(
             }
         }
     }
+}
+
+fun telDialog(
+    context: Context,
+    dutyTel: String?,
+) {
+    val options = arrayOf("전화걸기", "복사하기")
+    val builder = AlertDialog.Builder(context)
+    builder.setTitle("전화번호")
+        .setItems(options) { _, which ->
+            when (which) {
+                0 -> {
+                    dutyTel?.let { tel ->
+                        val intent = Intent(Intent.ACTION_DIAL).apply {
+                            data = Uri.parse("tel:$tel")
+                        }
+                        context.startActivity(intent)
+                    }
+                }
+
+                1 -> {
+                    val clipboardManager =
+                        context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    val clip = ClipData.newPlainText("전화번호", dutyTel)
+                    clipboardManager.setPrimaryClip(clip)
+                }
+            }
+        }
+        .show()
 }
 
 fun navigator(

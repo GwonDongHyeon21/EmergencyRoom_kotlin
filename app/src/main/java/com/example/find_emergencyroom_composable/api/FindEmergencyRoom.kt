@@ -93,6 +93,7 @@ private fun parseResponse(xml: String) {
                             dutyName = null
                             dutyTel = null
                             phId = null
+                            roomCount = null
                         }
 
                         "dutyName" -> dutyName = parser.nextText()

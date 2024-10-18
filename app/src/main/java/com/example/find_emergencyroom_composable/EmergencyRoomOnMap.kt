@@ -31,7 +31,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,6 +57,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
@@ -85,11 +85,11 @@ fun EmergencyRoomOnMapLayout(navController: NavController) {
         position = CameraPosition.fromLatLngZoom(startPosition, 12f)
     }
     val uiSettings by remember {
-        mutableStateOf(
-            MapUiSettings(myLocationButtonEnabled = true)
-        )
+        mutableStateOf(MapUiSettings(myLocationButtonEnabled = true))
     }
-    val properties by remember { mutableStateOf(MapProperties()) }
+    val properties by remember {
+        mutableStateOf(MapProperties(mapType = MapType.NORMAL))
+    }
     var isLoading by remember { mutableStateOf(false) }
     var currentAddress by remember { mutableStateOf("") }
     var buttonEnabled by remember { mutableStateOf(false) }
@@ -214,6 +214,8 @@ fun EmergencyRoomOnMapLayout(navController: NavController) {
                                             "${emergencyRoom.dutyName}/" +
                                             "${emergencyRoom.roomCount}/" +
                                             "${emergencyRoom.dutyAddress}/" +
+                                            "${emergencyRoom.wgs84Lat}/" +
+                                            "${emergencyRoom.wgs84Lon}/" +
                                             emergencyRoom.dutyTel
                                 )
                             }
@@ -325,6 +327,6 @@ suspend fun getAddressFromLatLng(context: Context, latLng: LatLng): String? {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewOnMap(){
+fun PreviewOnMap() {
     EmergencyRoomOnMapLayout(rememberNavController())
 }
