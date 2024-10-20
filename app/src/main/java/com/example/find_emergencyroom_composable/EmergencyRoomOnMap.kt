@@ -3,8 +3,10 @@ package com.example.find_emergencyroom_composable
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Address
 import android.location.Geocoder
 import android.location.Location
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,12 +14,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -30,6 +34,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -93,24 +99,8 @@ fun EmergencyRoomOnMapLayout(navController: NavController) {
     var isLoading by remember { mutableStateOf(false) }
     var currentAddress by remember { mutableStateOf("") }
     var buttonEnabled by remember { mutableStateOf(false) }
-
-//    LaunchedEffect(Unit) {
-//        emergencyRoomList.clear()
-//        emergencyRoomListAll.clear()
-//
-//        coroutineScope.launch(Dispatchers.IO) {
-//            emergencyRoomApi("서울특별시", "중구")
-//            val locationResult = emergencyRoomList.map { room ->
-//                coroutineScope {
-//                    launch(Dispatchers.IO) {
-//                        findLocation(room.phId, room)
-//                    }
-//                }
-//            }
-//            locationResult.forEach { it.join() }
-//            isLoading = false
-//        }
-//    }
+    var searchQuery by remember { mutableStateOf("") }
+    var searchResults by remember { mutableStateOf(emptyList<Address>()) }
 
     if (isLoading) {
         Column(
@@ -199,11 +189,10 @@ fun EmergencyRoomOnMapLayout(navController: NavController) {
                     }
                 ) {
                     emergencyRoomListAll.forEach { emergencyRoom ->
-                        val position =
-                            LatLng(
-                                emergencyRoom.wgs84Lat.toDouble(),
-                                emergencyRoom.wgs84Lon.toDouble()
-                            )
+                        val position = LatLng(
+                            emergencyRoom.wgs84Lat.toDouble(),
+                            emergencyRoom.wgs84Lon.toDouble()
+                        )
                         Marker(
                             state = MarkerState(position = position),
                             title = emergencyRoom.dutyName,
@@ -220,6 +209,76 @@ fun EmergencyRoomOnMapLayout(navController: NavController) {
                                 )
                             }
                         )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.align(Alignment.TopCenter)
+                ) {
+                    TextField(
+                        value = searchQuery,
+                        onValueChange = {
+                            searchQuery = it
+                            coroutineScope.launch {
+                                try {
+                                    val results = searchLocation(context, searchQuery)
+                                    searchResults = results ?: emptyList()
+                                    Log.d("testt", "검색된 결과: $searchResults")
+                                } catch (e: Exception) {
+                                    Log.e("testt", "Error: ${e.message}")
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth(0.6f)
+                            .padding(10.dp),
+                        textStyle = TextStyle(
+                            color = Color.Black,
+                            fontSize = 15.sp,
+                        ),
+                        singleLine = true,
+                        maxLines = 1,
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                        ),
+                        placeholder = {
+                            Text(
+                                text = "주소 또는 장소를 입력하세요",
+                                style = TextStyle(
+                                    fontSize = 15.sp,
+                                    color = Color.Gray,
+                                ),
+                            )
+                        }
+                    )
+
+                    LazyColumn(
+                        modifier = Modifier.wrapContentSize()
+                    ) {
+                        items(searchResults) { location ->
+                            Text(text = location.getAddressLine(0))
+                        }
+                    }
+
+                    Button(
+                        modifier = Modifier.align(Alignment.CenterVertically),
+                        onClick = {
+                            if (searchResults.isEmpty())
+                                Toast.makeText(context, "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
+//                            coroutineScope.launch {
+//                                val latLng = searchLocation2(context, searchQuery)
+//                                Log.d("testt", latLng.toString())
+//                                latLng?.let {
+//                                    cameraPositionState.position =
+//                                        CameraPosition.fromLatLngZoom(it, 15f)
+//                                } ?: run {
+//                                    Toast.makeText(context, "위치를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
+//                                }
+//                            }
+                        }
+                    ) {
+                        Text("검색")
                     }
                 }
 
@@ -294,6 +353,20 @@ fun EmergencyRoomOnMapLayout(navController: NavController) {
     }
 }
 
+suspend fun searchLocation(context: Context, query: String): MutableList<Address>? {
+    return withContext(Dispatchers.IO) {
+        val geocoder = Geocoder(context)
+        return@withContext try {
+            val addresses = geocoder.getFromLocationName(query, 10)
+            addresses?.ifEmpty {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+}
+
 suspend fun getCurrentLocation(
     context: Context,
     fusedLocationClient: FusedLocationProviderClient,
@@ -329,4 +402,22 @@ suspend fun getAddressFromLatLng(context: Context, latLng: LatLng): String? {
 @Composable
 fun PreviewOnMap() {
     EmergencyRoomOnMapLayout(rememberNavController())
+}
+
+suspend fun searchLocation2(context: Context, query: String): LatLng? {
+    return withContext(Dispatchers.IO) {
+        val geocoder = Geocoder(context)
+        return@withContext try {
+            val addresses = geocoder.getFromLocationName(query, 1)
+            Log.d("test", addresses.toString())
+            if (addresses?.isNotEmpty() == true) {
+                val location = addresses[0]
+                LatLng(location.latitude, location.longitude)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
 }

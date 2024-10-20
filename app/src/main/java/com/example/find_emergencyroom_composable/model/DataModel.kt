@@ -16,12 +16,3 @@ data class EmergencyRoomInformation(
     val wgs84Lat: String,
     val dutyAddress: String,
 )
-
-//class EmergencyRoomViewModel : ViewModel() {
-//    private val _selectedEmergencyRoom = MutableLiveData<EmergencyRoomInformation?>()
-//    val selectedEmergencyRoom: LiveData<EmergencyRoomInformation?> = _selectedEmergencyRoom
-//
-//    fun selectEmergencyRoom(emergencyRoom: EmergencyRoomInformation) {
-//        _selectedEmergencyRoom.value = emergencyRoom
-//    }
-//}

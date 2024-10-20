@@ -175,7 +175,7 @@ fun telDialog(
                 0 -> {
                     dutyTel?.let { tel ->
                         val intent = Intent(Intent.ACTION_DIAL).apply {
-                            data = Uri.parse("tel:$tel")
+                            data = Uri.parse(tel)
                         }
                         context.startActivity(intent)
                     }

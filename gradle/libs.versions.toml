@@ -27,6 +27,7 @@ appcompat = "1.7.0"
 playServicesMapsVersion = "18.0.2"
 playServicesLocationVersion = "21.3.0"
 databindingCompilerCommon = "8.7.0"
+places = "4.0.0"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -62,6 +63,7 @@ play-services-maps-v1802 = { module = "com.google.android.gms:play-services-maps
 play-services-maps-v1810 = { module = "com.google.android.gms:play-services-maps", version.ref = "googlePlayServicesMaps" }
 gms-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocationVersion" }
 androidx-databinding-compiler-common = { group = "androidx.databinding", name = "databinding-compiler-common", version.ref = "databindingCompilerCommon" }
+places = { group = "com.google.android.libraries.places", name = "places", version.ref = "places" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
