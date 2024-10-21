@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -69,7 +68,6 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -215,67 +213,88 @@ fun EmergencyRoomOnMapLayout(navController: NavController) {
                 Row(
                     modifier = Modifier.align(Alignment.TopCenter)
                 ) {
-                    TextField(
-                        value = searchQuery,
-                        onValueChange = {
-                            searchQuery = it
-                            coroutineScope.launch {
-                                try {
-                                    val results = searchLocation(context, searchQuery)
-                                    searchResults = results ?: emptyList()
-                                    Log.d("testt", "검색된 결과: $searchResults")
-                                } catch (e: Exception) {
-                                    Log.e("testt", "Error: ${e.message}")
-                                }
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth(0.6f)
-                            .padding(10.dp),
-                        textStyle = TextStyle(
-                            color = Color.Black,
-                            fontSize = 15.sp,
-                        ),
-                        singleLine = true,
-                        maxLines = 1,
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                        ),
-                        placeholder = {
-                            Text(
-                                text = "주소 또는 장소를 입력하세요",
-                                style = TextStyle(
-                                    fontSize = 15.sp,
-                                    color = Color.Gray,
-                                ),
-                            )
-                        }
-                    )
-
-                    LazyColumn(
+                    Column(
                         modifier = Modifier.wrapContentSize()
                     ) {
-                        items(searchResults) { location ->
-                            Text(text = location.getAddressLine(0))
+                        TextField(
+                            value = searchQuery,
+                            onValueChange = {
+                                searchQuery = it
+                                coroutineScope.launch {
+                                    try {
+                                        val results = searchLocation(context, searchQuery)
+                                        searchResults = results ?: emptyList()
+                                    } catch (_: Exception) {
+                                    }
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth(0.6f)
+                                .padding(top = 10.dp),
+                            shape = RoundedCornerShape(20.dp),
+                            textStyle = TextStyle(
+                                color = Color.Black,
+                                fontSize = 15.sp,
+                            ),
+                            singleLine = true,
+                            maxLines = 1,
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = Color.White,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                            ),
+                            placeholder = {
+                                Text(
+                                    text = "주소 또는 장소를 입력하세요",
+                                    style = TextStyle(
+                                        fontSize = 15.sp,
+                                        color = Color.Gray,
+                                    ),
+                                )
+                            }
+                        )
+
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth(0.5f)
+                                .align(Alignment.CenterHorizontally)
+                                .background(Color(240, 240, 240, 255))
+                        ) {
+                            items(searchResults) { location ->
+                                Text(
+                                    text = location.getAddressLine(0),
+                                    modifier = Modifier
+                                        .padding(5.dp)
+                                        .clickable {
+                                            val latLng =
+                                                LatLng(location.latitude, location.longitude)
+                                            cameraPositionState.position =
+                                                CameraPosition.fromLatLngZoom(latLng, 12f)
+                                            currentAddress = location.getAddressLine(0)
+                                            buttonEnabled = true
+                                        },
+                                )
+                                Spacer(
+                                    modifier = Modifier
+                                        .height(2.dp)
+                                        .fillMaxWidth(0.5f)
+                                        .background(Color.White),
+                                )
+                            }
                         }
                     }
 
                     Button(
-                        modifier = Modifier.align(Alignment.CenterVertically),
+                        modifier = Modifier
+                            .align(Alignment.Top)
+                            .padding(top = 10.dp, start = 10.dp),
                         onClick = {
-                            if (searchResults.isEmpty())
+                            if (searchResults.isEmpty()) {
                                 Toast.makeText(context, "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
-//                            coroutineScope.launch {
-//                                val latLng = searchLocation2(context, searchQuery)
-//                                Log.d("testt", latLng.toString())
-//                                latLng?.let {
-//                                    cameraPositionState.position =
-//                                        CameraPosition.fromLatLngZoom(it, 15f)
-//                                } ?: run {
-//                                    Toast.makeText(context, "위치를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
-//                                }
-//                            }
+                            } else {
+                                Toast.makeText(context, "검색 결과를 선택하세요.", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     ) {
                         Text("검색")
@@ -330,10 +349,8 @@ fun EmergencyRoomOnMapLayout(navController: NavController) {
                                         ?: listOf("")
                                 emergencyRoomApi(query1[0], query2[0])
                                 val locationResult = emergencyRoomList.map { room ->
-                                    coroutineScope {
-                                        launch(Dispatchers.IO) {
-                                            findLocation(room.phId, room)
-                                        }
+                                    coroutineScope.launch(Dispatchers.IO) {
+                                        findLocation(room.phId, room)
                                     }
                                 }
                                 locationResult.forEach { it.join() }
@@ -402,22 +419,4 @@ suspend fun getAddressFromLatLng(context: Context, latLng: LatLng): String? {
 @Composable
 fun PreviewOnMap() {
     EmergencyRoomOnMapLayout(rememberNavController())
-}
-
-suspend fun searchLocation2(context: Context, query: String): LatLng? {
-    return withContext(Dispatchers.IO) {
-        val geocoder = Geocoder(context)
-        return@withContext try {
-            val addresses = geocoder.getFromLocationName(query, 1)
-            Log.d("test", addresses.toString())
-            if (addresses?.isNotEmpty() == true) {
-                val location = addresses[0]
-                LatLng(location.latitude, location.longitude)
-            } else {
-                null
-            }
-        } catch (e: Exception) {
-            null
-        }
-    }
 }
