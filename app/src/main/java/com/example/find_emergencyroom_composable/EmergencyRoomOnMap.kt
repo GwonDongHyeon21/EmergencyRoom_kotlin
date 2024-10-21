@@ -219,7 +219,9 @@ fun EmergencyRoomOnMapLayout(navController: NavController) {
                         TextField(
                             value = searchQuery,
                             onValueChange = {
-                                searchQuery = it
+                                if (it.length <= 20) {
+                                    searchQuery = it
+                                }
                                 coroutineScope.launch {
                                     try {
                                         val results = searchLocation(context, searchQuery)
@@ -335,10 +337,11 @@ fun EmergencyRoomOnMapLayout(navController: NavController) {
                     onClick = {
                         buttonEnabled = false
                         isLoading = true
+                        searchQuery = ""
+                        searchResults = emptyList()
                         coroutineScope.launch {
                             emergencyRoomList.clear()
                             emergencyRoomListAll.clear()
-
                             coroutineScope.launch(Dispatchers.IO) {
                                 val query = currentAddress.split(" ")
                                 val query1 =
